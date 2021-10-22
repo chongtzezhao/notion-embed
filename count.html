@@ -1,0 +1,11 @@
+<div>
+	<p id="count">1</p>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		function increment(){
+			var next = parseInt($("#count").html())+1;
+			$("#count").html(String(next));
+		}
+		setInterval(function(){ increment(); }, 1000)
+	</script>
+</div>
