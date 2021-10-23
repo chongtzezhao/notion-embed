@@ -1,0 +1,246 @@
+<head>
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+            display: grid;
+            height: 100vh;
+            place-items: center;
+        }
+
+        .base-timer {
+            position: relative;
+            width: 300px;
+            height: 360px;
+            float: left;
+            text-align: center;
+        }
+
+        .base-timer__svg {
+            float: bottom;
+            transform: scaleX(-1);
+        }
+
+        .base-timer__circle {
+            fill: none;
+            stroke: none;
+        }
+
+        .base-timer__path-elapsed {
+            stroke-width: 7px;
+            stroke: grey;
+        }
+
+        .base-timer__path-remaining {
+            stroke-width: 7px;
+            stroke-linecap: round;
+            transform: rotate(87.5deg);
+            transform-origin: center;
+            transition: 1s linear all;
+            fill-rule: nonzero;
+            stroke: currentColor;
+        }
+
+        .base-timer__path-remaining.green {
+            color: rgb(65, 184, 131);
+        }
+
+        .base-timer__path-remaining.orange {
+            color: orange;
+        }
+
+        .base-timer__path-remaining.red {
+            color: red;
+        }
+
+        .base-timer__label {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        
+        span a .base-timer__label{
+            display: inline-block;
+            margin: 10px 10px 0 0;
+            padding: 5px 10px
+        }
+
+        .base-timer__title {
+            position: relative;
+            width: 300px;
+            height: 60px;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        
+        div a .base-timer__title{
+            display: inline-block;
+            margin: 10px 10px 0 0;
+            padding: 5px 10px;
+            font-family: Arial, Arial, Helvetica, sans-serif;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="base-timer">    
+            <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <g class="base-timer__circle">
+                <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+                <path
+                    id="base-timer-path-remaining-1"
+                    stroke-dasharray="283"
+                    class="base-timer__path-remaining green"
+                    d="
+                    M 50, 50
+                    m -45, 0
+                    a 45,45 0 1,0 90,0
+                    a 45,45 0 1,0 -90,0
+                    "
+                ></path>
+                </g>
+            </svg>
+            <span><a id="base-timer-label-1" class="base-timer__label"></a></span>
+            <div><a id="base-timer-title-1" class="base-timer__title"></a></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        // Credit: Mateusz Rybczonec
+
+        class Timer{
+
+            _COLOR_CODES() {
+                return {
+                    info: {
+                        color: "green"
+                    },
+                    warning: {
+                        color: "orange",
+                        threshold: 0.4
+                    },
+                    alert: {
+                        color: "red",
+                        threshold: 0.2
+                    }
+                }
+            };
+
+            constructor(title, startDate, endDate, elementID, labelID, titleID){
+                this._title = title;
+                this._titleID = titleID;
+                this._startDate = startDate;
+                this._endDate = endDate;
+                this._elementID = elementID;
+                this._labelID = labelID;
+                this._timePassed = 0;
+                this._TIME_LIMIT = this._endDate.getTime() - this._startDate.getTime();
+
+                this._setTitle();
+                this._startTimer();
+            }
+
+            _setTitle(){
+                document.getElementById(this._titleID).innerHTML = this._title;
+            }
+
+            _onTimesUp() {
+                clearInterval(this._timerInterval);
+            }
+
+            _startTimer() {
+                this._timerInterval = setInterval(() => {
+                    this._timeLeft = this._endDate.getTime() - Date.now();
+                    document.getElementById(this._labelID).innerHTML = this._formatTime(
+                        this._timeLeft
+                    );
+                    console.log("one second passed");
+                    this._setCircleDasharray();
+                    this._setRemainingPathColor();
+
+                    if (this._timeLeft === 0) {
+                        this._onTimesUp();
+                    }
+                }, 20);
+            }
+
+            _formatTime(time) {
+                let timeStr = "";
+
+                time/=1000;
+
+                let weeks = Math.floor(time / (60*60*24*7));
+                timeStr += `${weeks}W`
+                time %= (60*60*24*7);
+
+                let days = Math.floor(time / (60*60*24));
+                timeStr += ` ${days}D`;
+                time %= (60*60*24);
+
+                let hours = Math.floor(time / (60*60));
+                if (hours<10) hours=`0${hours}`;
+                timeStr += ` ${hours}`;
+                time %= (60*60);
+
+                let minutes = Math.floor(time / 60);
+                if (minutes<10) minutes=`0${minutes}`;
+                timeStr += `:${minutes}`;
+
+                let seconds = time % 60;
+                if (seconds < 10) seconds = `0${seconds}`;
+                timeStr += `:${seconds}`.slice(0, 3);
+
+                return timeStr;
+            }
+
+            _setRemainingPathColor() {
+                const timeLeftFrac = this._calculateTimeFraction()
+                const { alert, warning, info } = this._COLOR_CODES();
+                if (timeLeftFrac <= alert.threshold) {
+                    document
+                    .getElementById(this._elementID)
+                    .classList.remove(warning.color);
+                    document
+                    .getElementById(this._elementID)
+                    .classList.add(alert.color);
+                } else if (timeLeftFrac <= warning.threshold) {
+                    document
+                    .getElementById(this._elementID)
+                    .classList.remove(info.color); 
+                    document
+                    .getElementById(this._elementID)
+                    .classList.add(warning.color);
+                }
+            }
+
+            _calculateTimeFraction() {
+                const rawTimeFraction = this._timeLeft / this._TIME_LIMIT;
+                return rawTimeFraction - (1 / this._TIME_LIMIT) * (1 - rawTimeFraction);
+            }
+
+            _setCircleDasharray() {
+
+                const FULL_DASH_ARRAY = 283;
+                const circleDasharray = `${(
+                    this._calculateTimeFraction() * FULL_DASH_ARRAY
+                ).toFixed(0)} 283`;
+                document
+                    .getElementById(this._elementID)
+                    .setAttribute("stroke-dasharray", circleDasharray);
+            }
+
+        }
+
+        let timer1 = new Timer("University", new Date(2020, 11, 1, 16, 00, 00), new Date(2023, 06, 29, 16, 00, 00), "base-timer-path-remaining-1", "base-timer-label-1", "base-timer-title-1");
+        //let timer2 = new Timer("Post-As", "a", "b", "base-timer-path-remaining-2", "base-timer-label-2");
+
+       
+    </script>
+</body>
