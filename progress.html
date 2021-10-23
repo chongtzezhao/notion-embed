@@ -3,14 +3,15 @@
         body {
             font-family: sans-serif;
             display: grid;
-            height: 100vh;
+            height: 97vh;
             place-items: center;
+            overflow: hidden; 
         }
 
         .base-timer {
             position: relative;
-            max-width: 100vw;
-            max-height: 100vh;
+            width: min(90vw, 90vh);
+            height: min(90vw, 90vh)+50px;
             float: left;
             text-align: center;
         }
@@ -30,12 +31,13 @@
         }
 
         .base-timer__path-elapsed {
-            stroke-width: 7px;
+            stroke-width: 10%;
             stroke: grey;
+            transition: 1s linear all;
         }
 
         .base-timer__path-remaining {
-            stroke-width: 7px;
+            stroke-width: 10%;
             stroke-linecap: round;
             transform: rotate(87.5deg);
             transform-origin: center;
@@ -64,32 +66,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            font-size: min(17vw, 17vh);
         }
         
-        span a .base-timer__label{
-            display: inline-block;
-            margin: 10px 10px 0 0;
-            padding: 5px 10px
-        }
 
         .base-timer__title {
             position: relative;
-            width: 100vw;
-            height: 50px;
+            width: 100%;
+            height: 5%;
             top: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            display: inline-block;
+            font-family: Arial, Arial, Helvetica, sans-serif;
+            font-size: min(17vw, 17vh);
         }
         
-        div a .base-timer__title{
-            display: inline-block;
-            margin: 10px 10px 0 0;
-            padding: 5px 10px;
-            font-family: Arial, Arial, Helvetica, sans-serif;
-        }
 
     </style>
 </head>
@@ -114,9 +107,9 @@
                     </g>
                     
                 </svg>
-                <span><a id="base-timer-label-1" class="base-timer__label"></a></span>
+                <span id="base-timer-label-1" class="base-timer__label"></span>
             </div> 
-            <div><a id="base-timer-title-1" class="base-timer__title"></a></div>
+            <div id="base-timer-title-1" class="base-timer__title"></div>
         </div>
     </div>
     <script type="text/javascript">
